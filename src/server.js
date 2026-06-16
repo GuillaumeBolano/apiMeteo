@@ -1,10 +1,16 @@
 import express from 'express';
+import { parseCsv } from './utils/csv.js'
 
 const app = express();
 
 // ─── Routes ────────────────────────────────────────────────────────────────
 app.get('/healthcheck', (req, res) => {
   res.status(200).json({ status: "ok" });
+});
+
+app.get('/releves', async (req, res) => {
+    const resultat = await parseCsv('donnees/meteo.csv');
+    res.status(200).json(resultat);
 });
 
 // ─── Démarrage ─────────────────────────────────────────────────────────────
