@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,4 +23,24 @@ export async function parseCsv(cheminRelatif) {
             humidite: Number(colonnes[5]?.trim() ?? ''),
         };
     });
+}
+
+
+export async function writeCsv(chemin, releves) {
+    const entete = "ville;date;temperature_min;temperature_max;description;humidite";
+
+    const lignes = releves.map(releve => {
+        return [
+            releve.ville,
+            releve.date,
+            releve.temperatureMin,
+            releve.temperatureMax,
+            releve.description,
+            releve.humidite
+        ].join(";");
+    });
+
+    const contenu = [entete, ...lignes].join("\n");
+
+    await writeFile(chemin, contenu, "utf-8");
 }
