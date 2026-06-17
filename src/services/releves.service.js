@@ -6,6 +6,10 @@ export class ReleveService {
         this.repository = repository; // dépendance injectée, pas créée ici
     }
 
+    /**
+     * 
+     * @returns l'ensemble des relevés
+     */
     async getTousLesReleves() {
         const releves = await this.repository.findAll();
         // ici viendra le métier : tri, filtres, calculs...
@@ -13,6 +17,11 @@ export class ReleveService {
 
     }
 
+    /**
+     * Renvoie le relevé correspondant à l'id
+     * @param {number|string} id identifiant du relevé
+     * @returns {Releve | undefined} le relevé ou undefined si introuvable
+     */
     async getReleveParId(id) {
         const releve = await this.repository.findById(Number(id));
         return releve;
