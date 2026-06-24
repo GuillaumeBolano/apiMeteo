@@ -1,46 +1,41 @@
-import { writeFile } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFile, writeFile } from "fs/promises";
+import { resolve } from "path";
+import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Correction pour __dirname en ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = resolve(__filename, "..");
 
+// Lecture CSV
 export async function parseCsv(cheminRelatif) {
-    const chemin = resolve(__dirname, '..', '..', cheminRelatif);
-    const contenu = await readFile(chemin, 'utf-8');
-    const lignes = contenu.split('\n').filter(l => l.trim());
+    const chemin = resolve(__dirname, "..", cheminRelatif);
+    const contenu = await readFile(chemin, "utf-8");
 
-    // La première ligne est l'en-tête — on la saute
-    return lignes.slice(1).map((ligne, index) => {
-        const colonnes = ligne.split(";");
-        return {
-            id: index + 1,
-            ville: colonnes[0]?.trim() ?? '',
-            date: colonnes[1]?.trim() ?? '',
-            temperatureMin: Number(colonnes[2]?.trim() ?? ''),
-            temperatureMax: Number(colonnes[3]?.trim() ?? ''),
-            description: colonnes[4]?.trim() ?? '',
-            humidite: Number(colonnes[5]?.trim() ?? ''),
-        };
-    });
+    const lignes = contenu.split("\n").slice(1);
+
+    return lignes
+        .filter(l => l.trim() !== "")
+        .map(l => {
+            const [id, ville, temperatureMin, temperatureMax, date] = l.split(";");
+            return {
+                id: Number(id),
+                ville,
+                temperatureMin: Number(temperatureMin),
+                temperatureMax: Number(temperatureMax),
+                date
+            };
+        });
 }
 
+// Écriture CSV
+export async function writeCsv(cheminRelatif, releves) {
+    const chemin = resolve(__dirname, "..", cheminRelatif);
 
-export async function writeCsv(chemin, releves) {
-    const entete = "ville;date;temperature_min;temperature_max;description;humidite";
+    const header = "id;ville;temperatureMin;temperatureMax;date\n";
 
-    const lignes = releves.map(releve => {
-        return [
-            releve.ville,
-            releve.date,
-            releve.temperatureMin,
-            releve.temperatureMax,
-            releve.description,
-            releve.humidite
-        ].join(";");
-    });
+    const lignes = releves
+        .map(r => `${r.id};${r.ville};${r.temperatureMin};${r.temperatureMax};${r.date}`)
+        .join("\n");
 
-    const contenu = [entete, ...lignes].join("\n");
-
-    await writeFile(chemin, contenu, "utf-8");
+    await writeFile(chemin, header + lignes, "utf-8");
 }

@@ -14,8 +14,8 @@ const __dirname = dirname(__filename);
 
 /** @type {Config} */
 export const config = {
-    port:      parseInt(process.env.PORT || '3000', 10),
-    host:      process.env.HOST || '0.0.0.0',
-    env:       process.env.NODE_ENV || 'development',
-    cheminCsv: join(__dirname, '..', 'donnees/meteo.csv'), // chemin absolu vers /public
+    port: parseInt(process.env.PORT || '3000', 10),
+    host: process.env.HOST || '0.0.0.0',
+    env: process.env.NODE_ENV || 'development',
+    cheminCsv: join(__dirname, '..', 'donnees/releves.csv'), // chemin absolu vers /public
 };

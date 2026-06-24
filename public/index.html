@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>API Météo - Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Dashboard Météo</h1>
+
+    <h2>Liste des relevés</h2>
+    <button onclick="chargerReleves()">Actualiser</button>
+    <table id="tableReleves">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ville</th>
+                <th>Date</th>
+                <th>Min</th>
+                <th>Max</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Stats</h2>
+    <button onclick="chargerStats()">Voir les stats</button>
+    <pre id="stats"></pre>
+
+    <h2>Ajouter un relevé</h2>
+    <form onsubmit="ajouterReleve(event)">
+        <input type="text" id="ville" placeholder="Ville" required>
+        <input type="date" id="date" required>
+        <input type="number" id="min" placeholder="Temp min" required>
+        <input type="number" id="max" placeholder="Temp max" required>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <script>
+        async function chargerReleves() {
+            const res = await fetch("/releves");
+            const data = await res.json();
+
+            const tbody = document.querySelector("#tableReleves tbody");
+            tbody.innerHTML = "";
+
+            data.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.ville}</td>
+                        <td>${r.date}</td>
+                        <td>${r.temperatureMin}</td>
+                        <td>${r.temperatureMax}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function chargerStats() {
+            const res = await fetch("/stats");
+            const data = await res.json();
+            document.getElementById("stats").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function ajouterReleve(e) {
+            e.preventDefault();
+
+            const body = {
+                ville: document.getElementById("ville").value,
+                date: document.getElementById("date").value,
+                temperatureMin: Number(document.getElementById("min").value),
+                temperatureMax: Number(document.getElementById("max").value)
+            };
+
+            await fetch("/releves", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            chargerReleves();
+        }
+
+        chargerReleves();
+    </script>
+
+</body>
+
+</html>
